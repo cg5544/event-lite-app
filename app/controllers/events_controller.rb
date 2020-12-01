@@ -5,7 +5,7 @@ class EventsController < ApplicationController
 
   def create
     @event = Event.new(event_params)
-    @event.start_datetime = event_params[:start_datetime]&.to_datetime
+    @event.start_datetime = parse_date
     if @event.save
       render json: @event
     else
@@ -16,5 +16,13 @@ class EventsController < ApplicationController
   private
   def event_params
     params.require(:event).permit(:title, :start_datetime, :location)
+  end
+
+  def parse_date
+    if event_params[:start_datetime].include? "-"
+      event_params[:start_datetime]&.to_datetime
+    else
+      Date.strptime(event_params[:start_datetime], '%m/%d/%y')
+    end
   end
 end
